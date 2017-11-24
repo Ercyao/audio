@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <title>尼尔：机械纪元  2B</title>
+    <script src="js/jquery.min.js"></script>
+<style>
+ *{margin: 0; padding:0;} 
+ body{-webkit-tap-highlight-color: rgba(0,0,0,0); font-family: "微软雅黑"} 
+ h1{width: 100%; font-size: 1.8em; text-align: center;line-height: 3em; margin-top: 30px;}
+ /*播放器*/
+.fl{float: left;}
+.fr{float: right;}
+.fl:after,.fr:after{clear: both;}
+.faceimg{width: 50%;margin:15px 23%;padding: 2%;box-shadow: 0 0 8px 1px rgba(0, 0, 0, 0.4);}
+#audio{width: 100%;}
+.progressBar{position: relative; width: 90%; height: 11px; margin: 15px 5%;}
+.progressBar .progressBac{width: 100%;height: 2px;background: #b6b6b6;}
+.progressBar .speed{position: absolute; bottom: 9px; width: 0%; height:4px;background: #c70000;}
+.progressBar .drag{position:absolute ;bottom: 0;width: 15px;height: 15px;border-radius: 50%;background: #FFFFFF;border: 2px solid #c70000;}
+.btnbox{display: -webkit-flex; display: flex; -webkit-justify-content: center; justify-content: center; width:100%; height: 250px;}
+.btnbox input[type=button]{border: 0;}
+.btnbox .previous,.btnbox .next{width: 60px; height: 60px; margin: 25px 10px;}
+#control{width: 90px;height: 90px;margin: 10px;}
+.btnbox .previous{background: url(img/audio_l.png) no-repeat;background-size: 100% 100%;}
+.btnbox .play{background: url(img/audio_play.png) no-repeat;background-size: 100% 100%;}
+.btnbox .pause{background: url(img/audio_pause.png) no-repeat;background-size: 100% 100%;}
+.btnbox .next{background: url(img/audio_r.png) no-repeat;background-size: 100% 100%;}
+#time{position: relative; width: 90%; margin: 10px 5% 0; height: 20px;font-size: 14px;color: #b8b6b6;}
+/*播放器 end*/       
+</style> 
+</head>
+<body>
+
+<main>
+	<h1>尼尔：机械纪元 2B</h1>
+	<img src="img/10.jpg"  class="faceimg"/>
+	
+	<div class="audiobox">
+		<!--audio start-->
+		<audio id="audio"  src="music/1.mp3"   loop="loop" autoplay="autoplay"></audio>
+		<!--audio End-->
+
+        <!--播放时间start-->
+        <div id="time"><div class="tiemDetail">	<span class="fl" id="currentTime">0:00</span><span class="fr" id="allTime">4:00</span></div></div>
+        <!--播放时间end-->
+            			
+        <!--时间进度条块儿start-->
+	    <div class="progressBar">
+			<div class="progressBac"></div>
+			<div class="speed" id="speed"></div>
+			<div class="drag" id="drag"></div>
+		</div>
+        <!--时间进度条块儿start-->
+            		
+       <!--播放控制按钮start-->
+        <div class="btnbox ">
+            <input  type="button"  class=" previous " id="previous"/>
+			<input type="button" id="control" class="pause"/>
+			<input  type="button"  class="next" id="next"/>
+        </div>
+        <!--播放控制按钮end-->
+	</div>	
+			
+</main>
+
+<script>
+	
+$(document).ready(function(){	
+	var audio = $("#audio")[0];  
+	/*控制播放和暂停*/
+	 $("#control").click(function(){
+	 	 if ($("#control").hasClass("play")) {
+	 	 	$("#control").addClass("pause").removeClass("play");
+		        
+		            audio.play();//开始播放  
+		            dragMove();
+		            addListenTouch();
+		} else {
+			$("#control").addClass("play").removeClass("pause");
+					
+					audio.pause();  
+		}
+	});
+     /*控制播放和暂停 end*/
+    
+	/*	获取总时间*/
+	function allTime(){
+		setInterval(function (){
+		var a=(parseInt(audio.duration));
+		var minute = a / 60;
+		    var minutes = parseInt(minute);
+		    if (minutes < 10) {
+		        minutes = "0" + minutes;
+		    }
+		    var second = a %  60 ;
+		    seconds = parseInt(second);
+		    if (seconds < 10) {
+		        seconds = "0" + seconds;
+		    }
+		 var allTime = "" + minutes + "" + ":" + "" + seconds + ""
+			$(" #allTime").html(allTime);
+		});
+	}
+	/*	获取总时间 end*/
+	
+	/*	获取进度此刻时间*/
+	function currentTime(){
+		setInterval(function (){
+		var c=(parseInt(audio.currentTime));
+		var minute = (c / 60) % 60;
+		    var minutes = parseInt(minute);
+		    if (minutes < 10) {
+		        minutes = "0" + minutes;
+		    }
+		    //秒
+		   var second = c % 60;
+		    seconds = parseInt(second);
+		    if (seconds < 10) {
+		        seconds = "0" + seconds;
+		    }
+		 var currentTime = "" + minutes + "" + ":" + "" + seconds + ""
+			$(" #currentTime").html(currentTime);
+    	},1000);
+	}
+	/*	获取进度此刻时间 end*/
+
+	/*拖动滑动条*/
+	 var startX, x, aboveX = 0; 
+	function addListenTouch() {
+	    document.getElementById("drag").addEventListener("touchstart", touchStart, false);
+	    document.getElementById("drag").addEventListener("touchmove", touchMove, false);
+	    document.getElementById("drag").addEventListener("touchend", touchEnd, false);
+	    var drag = document.getElementById("drag");
+	    var speed = document.getElementById("speed");
+	}
+	function touchStart(e) {  
+	     e.preventDefault();
+	     var touch = e.touches[0];
+	     startX = touch.pageX; 
+	 }
+	 function touchMove(e) { //滑动          
+	     e.preventDefault();
+	     var touch = e.touches[0];
+	     x = touch.pageX - startX; //滑动的距离
+	     drag.style.left = aboveX + x + "px"; 
+	     speed.style.width =aboveX + x + "px"; 
+	 }
+	 function touchEnd(e) { //手指离开屏幕
+	     e.preventDefault();
+	     aboveX = parseInt(drag.style.left);
+	     var touch = e.touches[0];
+	     var dragPaddingLeft = drag.style.left;
+	     var change = dragPaddingLeft.replace("px", "");
+	     numDragpaddingLeft = parseInt(change);
+	     var currentTime = (numDragpaddingLeft / (window.innerWidth - 60)) * audio.duration;
+	     audio.currentTime = currentTime;
+	 }
+	 /*拖动滑动条  end*/
+	
+	 /*滑动条自动*/
+	function dragMove() {
+	    setInterval(function() {
+	        drag.style.left = (audio.currentTime / audio.duration) * (window.innerWidth - 60) + "px";
+	        speed.style.width =(audio.currentTime / audio.duration) * (window.innerWidth - 60) + "px";
+	    }, 500);
+	}
+	 /*滑动条自动  end*/
+	dragMove();
+	addListenTouch();
+	allTime();
+	currentTime();
+});
+ </script>
+</body>
+</html>
