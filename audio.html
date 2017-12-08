@@ -171,6 +171,28 @@ $(document).ready(function(){
 	    }, 500);
 	}
 	 /*滑动条自动  end*/
+	
+	/*点击进度条 start*/
+		$(".progressBar").click(function(event){
+			var dragObj = $(".drag");
+        	var dragWidth = dragObj[0].offsetWidth;
+       		var progressBaObj = $(".progressBar");
+        	var x = progressBaObj[0].offsetLeft + dragWidth/2;
+       		event.preventDefault();
+            clickX=event.clientX;
+			drag.style.left = clickX -x + "px";
+            speed.style.width = clickX -x + "px";
+            var dragPaddingLeft = drag.style.left;
+            var change = dragPaddingLeft.replace("px", "");
+            numDragpaddingLeft = parseInt(change);
+            var currentTime = (numDragpaddingLeft / (window.innerWidth - 60)) * audio.duration;//30是拖动圆圈的长度，减掉是为了让歌曲结束的时候不会跑到window以外
+            audio.currentTime = currentTime;
+            $("#control").addClass("pause").removeClass("play");
+            audio.play();//开始播放
+console.log(x,dragWidth)
+      })
+	/*点击进度条 end*/
+	
 	dragMove();
 	addListenTouch();
 	allTime();
